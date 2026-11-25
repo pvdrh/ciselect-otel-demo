@@ -1,0 +1,21 @@
+{
+ "step": 1,
+ "mode": "lgbm",
+ "recall_target": 0.9541666666666666,
+ "candidates": {
+  "b1": 0.8402777777777778,
+  "b1h": 0.8402777777777778,
+  "b2": 0.984722222222222,
+  "b3": 0.9708333333333332,
+  "lr": 0.9902777777777776,
+  "lgbm": 0.973611111111111
+ },
+ "significant_vs": {
+  "b1": true,
+  "b1h": true,
+  "b2": true,
+  "b3": true,
+  "lr": true
+ },
+ "summary": "E:\\luan_van-02-ci-test-selection\\results\\ts02_summary\\20261005-195113_seed0-4"
+}

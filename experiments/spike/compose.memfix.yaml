@@ -1,0 +1,8 @@
+# decisions #31: thử nghiệm giả thuyết GC thrash ở service Go (gốc: limit 20M, GOMEMLIMIT=16MiB).
+services:
+  checkout:
+    deploy: {resources: {limits: {memory: 64M}}}
+    environment: [GOMEMLIMIT=48MiB]
+  product-catalog:
+    deploy: {resources: {limits: {memory: 64M}}}
+    environment: [GOMEMLIMIT=48MiB]

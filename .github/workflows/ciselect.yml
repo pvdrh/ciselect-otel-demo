@@ -1,0 +1,132 @@
+# Bản cho repo demo trên runner GitHub: thêm timeout-minutes cho build và e2e, dọn ổ đĩa và setup-python ở
+# job e2e. Logic chọn test giữ nguyên như tool/ci/ciselect.yml của repo luận văn.
+# ciselect: chọn service cần build lại, có chạy e2e không và chạy test e2e nào.
+# Đặt vào .github/workflows/ của repo opentelemetry-demo có thư mục tool/, experiments/ và model/ (xem tool/ci/make_repo.py).
+# Đã kiểm bằng `act -P ubuntu-latest=-self-hosted` trên Windows. Trigger pull_request, merge_group chưa kiểm trên GitHub.
+# Job gate, cách lấy diff của PR và trigger merge_group được kiểm bằng test và bằng act trên một workflow giả lập.
+# permissions, concurrency, persist-credentials: false và action ghim theo SHA thêm ngày 2026-10-14. Phần này kiểm bằng
+# test, actionlint và `act -n` (tải đúng action theo SHA), chưa chạy lại trên mutant.
+name: ciselect
+
+on:
+  workflow_dispatch:
+    inputs:
+      base:
+        description: commit base để so diff
+        required: true
+      head:
+        description: commit head
+        default: HEAD
+      mode:
+        description: mode của ciselect (default = chế độ ghi trong default_mode.json)
+        default: default
+  pull_request:
+  merge_group:  # repo dùng merge queue: thiếu trigger này thì required check không được báo
+    types: [checks_requested]
+
+permissions:  # token chỉ đọc, như run-telemetry-tests.yml của demo 3.1.0
+  contents: read
+
+concurrency:  # lượt mới của cùng PR (hay ref) huỷ lượt cũ, như run-telemetry-tests.yml của demo
+  group: ciselect-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:  # pull_request: job select lấy base, head từ merge commit. merge_group: commit cha và commit của group
+  BASE: ${{ github.event.inputs.base || github.event.merge_group.base_sha }}
+  HEAD_REF: ${{ github.event.inputs.head || github.event.merge_group.head_sha }}
+  MODE: ${{ github.event.inputs.mode || 'default' }}
+
+jobs:
+  select:
+    runs-on: ubuntu-latest
+    outputs:
+      build: ${{ steps.s.outputs.build }}
+      e2e: ${{ steps.s.outputs.e2e }}
+      tests: ${{ steps.s.outputs.tests }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4.4.0, tag v4 ngày 2026-10-14
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065  # v5.6.0, tag v5
+        if: ${{ !env.ACT }}  # dưới act (self-hosted Windows) dùng Python 3.10 có sẵn: setup-python bị execution policy chặn
+        with:
+          python-version: "3.10"
+      - name: venv
+        shell: bash
+        run: |
+          python -m venv .venv
+          if [ -f .venv/Scripts/python.exe ]; then PY=.venv/Scripts/python.exe; else PY=.venv/bin/python; fi
+          "$PY" -m pip install -q -r tool/requirements.txt
+          echo "PY=$PY" >> "$GITHUB_ENV"
+      - id: s
+        shell: bash
+        run: |
+          if [ "$GITHUB_EVENT_NAME" = pull_request ]; then  # merge commit so với cha thứ nhất, tức đỉnh nhánh base
+            git rev-parse -q --verify HEAD^2 >/dev/null || { echo "::error::HEAD không phải merge commit của PR"; exit 1; }
+            BASE=$(git rev-parse HEAD^1); HEAD_REF=$(git rev-parse HEAD)
+          fi
+          "$PY" tool/ci/select_step.py "$BASE" "$HEAD_REF" "$MODE" model select.json
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2, tag v4
+        with:
+          name: select
+          path: select.json
+
+  build:
+    needs: select
+    if: needs.select.outputs.build != '[]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      matrix:
+        service: ${{ fromJSON(needs.select.outputs.build) }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4.4.0, tag v4 ngày 2026-10-14
+        with:
+          persist-credentials: false
+      - shell: bash
+        env:
+          DEMO_VERSION: "3.1.0"
+        run: >-
+          docker compose --env-file .env -f compose.yaml -f compose.observability.yaml -f compose.extras.yaml
+          -f experiments/spike/compose.memfix.yaml build "${{ matrix.service }}"
+
+  e2e:
+    needs: [select, build]
+    if: needs.select.outputs.e2e == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262  # v4.4.0, tag v4 ngày 2026-10-14
+        with:
+          persist-credentials: false
+      - name: Free disk space  # bản demo trên runner GitHub: chép từ run-telemetry-tests.yml của OTel 3.1.0
+        shell: bash
+        run: |
+          sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc
+          docker system prune -af
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065  # v5.6.0, bản demo: job e2e gọi python
+        with:
+          python-version: "3.10"
+      - name: telemetry-tests image  # runner mới chưa có; máy có sẵn thì giữ nguyên (không ghi đè tag)
+        shell: bash
+        run: docker image inspect opentelemetry-demo-telemetry-tests >/dev/null 2>&1 || docker build -t opentelemetry-demo-telemetry-tests ./test/telemetry
+      - shell: bash
+        env:
+          BUILD: ${{ needs.select.outputs.build }}
+          TESTS: ${{ needs.select.outputs.tests }}
+        run: python tool/ci/e2e.py "$BUILD" "$TESTS" e2e-out
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2, tag v4
+        if: always()
+        with:
+          name: junit
+          path: e2e-out/telemetry.xml
+
+  gate:  # required check đặt trên job này: job bị bỏ do if báo Success, kể cả khi job nó cần bị lỗi
+    needs: [select, build, e2e]
+    if: always()  # demo 3.1.0 (checks.yml) dùng always() && !cancelled(); ở đây lượt bị huỷ cũng làm check lỗi
+    runs-on: ubuntu-latest
+    steps:
+      - if: contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')
+        shell: bash
+        run: exit 1

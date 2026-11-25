@@ -1,0 +1,25 @@
+{
+ "plan": "plans/2026-10-05-d3-t5-mo-hinh-giao-di.md",
+ "seed": 0,
+ "config": {
+  "b2": [
+   1,
+   "undirected"
+  ],
+  "b3": 0.5,
+  "lr": {
+   "C": 0.001,
+   "class_weight": "balanced"
+  },
+  "lgbm": {
+   "num_leaves": 31,
+   "learning_rate": 0.1,
+   "n_estimators": 300,
+   "min_child_samples": 20,
+   "class_weight": null
+  }
+ },
+ "threshold_source": "OOF C4 K=5 seed 0",
+ "n_mutants": 353,
+ "note": "không dùng để báo hiệu năng; hiệu năng lấy từ D2"
+}

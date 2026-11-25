@@ -1,0 +1,112 @@
+{
+ "files": {
+  "src/product-catalog/main.go": {
+   "service": "product-catalog",
+   "generated": false
+  },
+  "src/checkout/main.go": {
+   "service": "checkout",
+   "generated": false
+  },
+  "src/recommendation/demo_pb2.py": {
+   "service": "recommendation",
+   "generated": true
+  },
+  "src/shipping/src/shipping_service/shipping_types.rs": {
+   "service": "shipping",
+   "generated": false
+  },
+  "src/payment/charge.js": {
+   "service": "payment",
+   "generated": false
+  },
+  "src/recommendation/recommendation_server.py": {
+   "service": "recommendation",
+   "generated": false
+  },
+  "src/currency/build/generated/proto/demo.grpc.pb.h": {
+   "service": "currency",
+   "generated": true
+  },
+  "src/currency/build/generated/proto/demo.pb.cc": {
+   "service": "currency",
+   "generated": true
+  },
+  "src/currency/build/generated/proto/demo.pb.h": {
+   "service": "currency",
+   "generated": true
+  },
+  "src/currency/build/generated/proto/grpc/health/v1/health.grpc.pb.h": {
+   "service": "currency",
+   "generated": true
+  },
+  "src/ad/src/main/java/oteldemo/AdService.java": {
+   "service": "ad",
+   "generated": false
+  },
+  "src/email/email_server.rb": {
+   "service": "email",
+   "generated": false
+  },
+  "src/shipping/src/shipping_service.rs": {
+   "service": "shipping",
+   "generated": false
+  },
+  "src/currency/src/server.cpp": {
+   "service": "currency",
+   "generated": false
+  },
+  "src/checkout/genproto/oteldemo/demo.pb.go": {
+   "service": "checkout",
+   "generated": true
+  },
+  "src/product-catalog/genproto/oteldemo/demo.pb.go": {
+   "service": "product-catalog",
+   "generated": true
+  },
+  "src/frontend/gateways/http/Shipping.gateway.ts": {
+   "service": "frontend",
+   "generated": false
+  },
+  "src/cart/src/cartstore/ValkeyCartStore.cs": {
+   "service": "cart",
+   "generated": false
+  },
+  "src/cart/src/services/CartService.cs": {
+   "service": "cart",
+   "generated": false
+  },
+  "src/shipping/src/shipping_service/quote.rs": {
+   "service": "shipping",
+   "generated": false
+  },
+  "src/quote/app/routes.php": {
+   "service": "quote",
+   "generated": false
+  },
+  "src/payment/index.js": {
+   "service": "payment",
+   "generated": false
+  },
+  "src/frontend/gateways/rpc/Cart.gateway.ts": {
+   "service": "frontend",
+   "generated": false
+  },
+  "src/frontend/gateways/rpc/Checkout.gateway.ts": {
+   "service": "frontend",
+   "generated": false
+  },
+  "src/frontend/gateways/rpc/Recommendations.gateway.ts": {
+   "service": "frontend",
+   "generated": false
+  },
+  "src/load-generator/locustfile.py": {
+   "service": "load-generator",
+   "generated": false
+  },
+  "src/frontend/gateways/rpc/ProductCatalog.gateway.ts": {
+   "service": "frontend",
+   "generated": false
+  }
+ }
+}
