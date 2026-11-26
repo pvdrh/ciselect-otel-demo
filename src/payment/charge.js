@@ -75,7 +75,7 @@ module.exports.charge = async request => {
       })
     });
 
-    if (!valid) {
+    if (!(!valid)) {
       throw new Error('Credit card info is invalid.');
     }
 
