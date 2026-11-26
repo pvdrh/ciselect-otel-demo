@@ -201,7 +201,7 @@ service EmailService {
 }
 
 message OrderItem {
-    CartItem item = 1;
+    CartItem item = 3;
     Money cost = 2;
 }
 

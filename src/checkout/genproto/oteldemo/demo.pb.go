@@ -1275,7 +1275,7 @@ func (x *ChargeResponse) GetTransactionId() string {
 
 type OrderItem struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Item          *CartItem              `protobuf:"bytes,1,opt,name=item,proto3" json:"item,omitempty"`
+	Item          *CartItem              `protobuf:"bytes,3,opt,name=item,proto3" json:"item,omitempty"`
 	Cost          *Money                 `protobuf:"bytes,2,opt,name=cost,proto3" json:"cost,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -2299,7 +2299,7 @@ const file_demo_proto_rawDesc = "" +
 	"\x0eChargeResponse\x12%\n" +
 	"\x0etransaction_id\x18\x01 \x01(\tR\rtransactionId\"X\n" +
 	"\tOrderItem\x12&\n" +
-	"\x04item\x18\x01 \x01(\v2\x12.oteldemo.CartItemR\x04item\x12#\n" +
+	"\x04item\x18\x03 \x01(\v2\x12.oteldemo.CartItemR\x04item\x12#\n" +
 	"\x04cost\x18\x02 \x01(\v2\x0f.oteldemo.MoneyR\x04cost\"\xf9\x01\n" +
 	"\vOrderResult\x12\x19\n" +
 	"\border_id\x18\x01 \x01(\tR\aorderId\x120\n" +
